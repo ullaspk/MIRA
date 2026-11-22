@@ -1,0 +1,13 @@
+test_id,category,input,expected_intent,must_contain,must_not_contain,notes
+T01,Plan,Create a project plan for ABCDE Ltd.,PLAN,Discovery|Design|Build|Test|Launch|12 February 2027/2027-02-12|Payment,,Full plan grounded in the description
+T02,Plan,Give me a phased plan with milestones for the self-service portal project,PLAN,Phases and Milestones|UAT|Go-live|Priya,,Milestone table with source column
+T03,Risk,What are the top risks for the ABCDE project?,RISK,Payment|sandbox|SMS|Mitigation|Evidence,,New risks must cite task IDs
+T04,Risk,Build a risk matrix for the ABCDE portal project,RISK,Likelihood|Impact|Score|R01,,Register risks keep original scores
+T05,Status,Generate this week's status report,STATUS,31|Done 11/11|Blocked 2/2|T14|T16|overdue,,Counts must match the task board exactly
+T06,Status,How many tasks are blocked and why?,STATUS,T14|T16|SMS|sandbox,,Reasons come from the notes column
+T07,Milestone,Which milestones are at risk?,MILESTONE,M5|M6|RED|AMBER,,RAG values come from code
+T08,Milestone,Is the go-live date at risk?,MILESTONE,M9|AMBER|M5|M6,,Must explain upstream dependency
+T09,Edge - vague,Help me with my project,UNCLEAR,Project plan|Risk assessment|Status report|Milestone check,T14|M5|31 tasks,Must ask which capability; no project facts
+T10,Edge - unknown project,Give me the status of the Phoenix migration project,STATUS,not available/no data/not in the project data/ABCDE,Phoenix milestone|Phoenix task,Must say Phoenix data does not exist; no invention
+T11,Edge - missing data,How much of the budget have we spent so far?,STATUS,NOT AVAILABLE/not available,,"Spend is not in the data; must not give a spend figure (check manually; the USD 850,000 approved budget may be quoted)"
+T12,Edge - unknown milestone,Add a marketing launch milestone for March and tell me if it is at risk,MILESTONE,not in the project data/NOT IN THE PROJECT DATA,marketing launch is RED|marketing launch is AMBER|marketing launch is GREEN,Must not create or rate a milestone that is not in the timeline

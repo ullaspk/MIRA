@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 800" width="1680" height="800"><defs><marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#4A5A66"/></marker></defs>
+<rect x="0" y="0" width="1680" height="800" rx="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"/>
+<rect x="20" y="20" width="280" height="84" rx="10" fill="#FFFFFF" stroke="#13212B" stroke-width="2"/>
+<text x="160.0" y="54" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">User (PM / TPM)</text>
+<text x="160.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">asks in chat</text>
+<rect x="370" y="20" width="280" height="84" rx="10" fill="#FFFFFF" stroke="#13212B" stroke-width="2"/>
+<text x="510.0" y="54" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">n8n Chat Trigger</text>
+<text x="510.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">public chat URL</text>
+<rect x="720" y="20" width="280" height="84" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="860.0" y="54" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Config</text>
+<text x="860.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">repo URL, as-of date</text>
+<rect x="1070" y="20" width="280" height="84" rx="10" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="1210.0" y="54" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Intent Classifier</text>
+<text x="1210.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">gpt-4o-mini, 1 word</text>
+<rect x="1420" y="20" width="240" height="84" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="1540.0" y="54" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Parse Intent</text>
+<text x="1540.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">safe fallback: UNCLEAR</text>
+<line x1="300" y1="62" x2="370" y2="62" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="650" y1="62" x2="720" y2="62" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="1000" y1="62" x2="1070" y2="62" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="1350" y1="62" x2="1420" y2="62" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="1540" y1="104" x2="1540" y2="132" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="132" width="1640" height="44" rx="10" fill="#FCE8C8" stroke="#D48A1F" stroke-width="2"/>
+<text x="840" y="161" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#13212B" font-weight="bold" text-anchor="middle">Route Request  (Switch node on intent)</text>
+<line x1="166.0" y1="176" x2="166.0" y2="206" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="206" width="292" height="44" rx="10" fill="#1C7C7D" stroke="#1C7C7D" stroke-width="2"/>
+<text x="166.0" y="236" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle">PLAN</text>
+<line x1="166.0" y1="250" x2="166.0" y2="274" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="274" width="292" height="106" rx="10" fill="#E4ECF7" stroke="#2E5B8A" stroke-width="2"/>
+<text x="166.0" y="308" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Fetch data (GitHub raw)</text>
+<text x="166.0" y="336" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">project description</text>
+<line x1="166.0" y1="380" x2="166.0" y2="412" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="412" width="292" height="106" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="166.0" y="446" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Prepare context (Code)</text>
+<text x="166.0" y="474" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">Build context</text>
+<text x="166.0" y="498" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">description only</text>
+<line x1="166.0" y1="518" x2="166.0" y2="550" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="550" width="292" height="106" rx="10" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="166.0" y="584" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Plan Generator</text>
+<text x="166.0" y="612" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">gpt-4.1-mini</text>
+<text x="166.0" y="636" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">strict grounding rules</text>
+<line x1="166.0" y1="656" x2="166.0" y2="690" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="503.0" y1="176" x2="503.0" y2="206" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="357" y="206" width="292" height="44" rx="10" fill="#B5473F" stroke="#B5473F" stroke-width="2"/>
+<text x="503.0" y="236" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle">RISK</text>
+<line x1="503.0" y1="250" x2="503.0" y2="274" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="357" y="274" width="292" height="106" rx="10" fill="#E4ECF7" stroke="#2E5B8A" stroke-width="2"/>
+<text x="503.0" y="308" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Fetch data (GitHub raw)</text>
+<text x="503.0" y="336" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">description, risk register</text>
+<text x="503.0" y="360" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">task board</text>
+<line x1="503.0" y1="380" x2="503.0" y2="412" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="357" y="412" width="292" height="106" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="503.0" y="446" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Prepare context (Code)</text>
+<text x="503.0" y="474" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">Register scores in code</text>
+<text x="503.0" y="498" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">blocked + overdue evidence</text>
+<line x1="503.0" y1="518" x2="503.0" y2="550" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="357" y="550" width="292" height="106" rx="10" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="503.0" y="584" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Risk Analyst</text>
+<text x="503.0" y="612" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">gpt-4.1-mini</text>
+<text x="503.0" y="636" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">strict grounding rules</text>
+<line x1="503.0" y1="656" x2="503.0" y2="690" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="840.0" y1="176" x2="840.0" y2="206" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="694" y="206" width="292" height="44" rx="10" fill="#2E5B8A" stroke="#2E5B8A" stroke-width="2"/>
+<text x="840.0" y="236" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle">STATUS</text>
+<line x1="840.0" y1="250" x2="840.0" y2="274" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="694" y="274" width="292" height="106" rx="10" fill="#E4ECF7" stroke="#2E5B8A" stroke-width="2"/>
+<text x="840.0" y="308" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Fetch data (GitHub raw)</text>
+<text x="840.0" y="336" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">task board (CSV)</text>
+<line x1="840.0" y1="380" x2="840.0" y2="412" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="694" y="412" width="292" height="106" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="840.0" y="446" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Prepare context (Code)</text>
+<text x="840.0" y="474" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">Counts, overdue, blockers</text>
+<text x="840.0" y="498" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">computed in code</text>
+<line x1="840.0" y1="518" x2="840.0" y2="550" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="694" y="550" width="292" height="106" rx="10" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="840.0" y="584" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Status Reporter</text>
+<text x="840.0" y="612" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">gpt-4o-mini</text>
+<text x="840.0" y="636" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">strict grounding rules</text>
+<line x1="840.0" y1="656" x2="840.0" y2="690" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="1177.0" y1="176" x2="1177.0" y2="206" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1031" y="206" width="292" height="44" rx="10" fill="#5B8E7D" stroke="#5B8E7D" stroke-width="2"/>
+<text x="1177.0" y="236" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle">MILESTONE</text>
+<line x1="1177.0" y1="250" x2="1177.0" y2="274" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1031" y="274" width="292" height="106" rx="10" fill="#E4ECF7" stroke="#2E5B8A" stroke-width="2"/>
+<text x="1177.0" y="308" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Fetch data (GitHub raw)</text>
+<text x="1177.0" y="336" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">timeline (CSV)</text>
+<text x="1177.0" y="360" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">task board (CSV)</text>
+<line x1="1177.0" y1="380" x2="1177.0" y2="412" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1031" y="412" width="292" height="106" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="1177.0" y="446" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Prepare context (Code)</text>
+<text x="1177.0" y="474" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">RAG per milestone</text>
+<text x="1177.0" y="498" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">computed in code</text>
+<line x1="1177.0" y1="518" x2="1177.0" y2="550" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1031" y="550" width="292" height="106" rx="10" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="1177.0" y="584" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Milestone Analyst</text>
+<text x="1177.0" y="612" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">gpt-4o-mini</text>
+<text x="1177.0" y="636" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">strict grounding rules</text>
+<line x1="1177.0" y1="656" x2="1177.0" y2="690" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="1514.0" y1="176" x2="1514.0" y2="206" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1368" y="206" width="292" height="44" rx="10" fill="#8A6D3B" stroke="#8A6D3B" stroke-width="2"/>
+<text x="1514.0" y="236" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#FFFFFF" font-weight="bold" text-anchor="middle">UNCLEAR</text>
+<line x1="1514.0" y1="250" x2="1514.0" y2="274" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1368" y="274" width="292" height="106" rx="10" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="1514.0" y="308" font-family="Arial, Helvetica, sans-serif" font-size="21" fill="#13212B" font-weight="bold" text-anchor="middle">Clarification menu</text>
+<text x="1514.0" y="336" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">no LLM call</text>
+<text x="1514.0" y="360" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="middle">nothing to invent</text>
+<line x1="1514.0" y1="380" x2="1514.0" y2="690" stroke="#4A5A66" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="20" y="690" width="1640" height="48" rx="10" fill="#FFFFFF" stroke="#13212B" stroke-width="2"/>
+<text x="840" y="722" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#13212B" font-weight="bold" text-anchor="middle">Final Response  >  Build Trace  >  Log to Langfuse (HTTP)  >  Reply to user</text>
+<rect x="20" y="758" width="34" height="24" rx="5" fill="#D6EEEE" stroke="#1C7C7D" stroke-width="2"/>
+<text x="66" y="777" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#13212B" font-weight="normal" text-anchor="start">LLM agent</text>
+<rect x="210" y="758" width="34" height="24" rx="5" fill="#EEF1F3" stroke="#7A8CA3" stroke-width="2"/>
+<text x="256" y="777" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#13212B" font-weight="normal" text-anchor="start">Deterministic code</text>
+<rect x="470" y="758" width="34" height="24" rx="5" fill="#E4ECF7" stroke="#2E5B8A" stroke-width="2"/>
+<text x="516" y="777" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#13212B" font-weight="normal" text-anchor="start">External data</text>
+<rect x="700" y="758" width="34" height="24" rx="5" fill="#FCE8C8" stroke="#D48A1F" stroke-width="2"/>
+<text x="746" y="777" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#13212B" font-weight="normal" text-anchor="start">Router</text>
+<text x="1660" y="777" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2B3A45" font-weight="normal" text-anchor="end">Langfuse receives one trace per request, with one generation per LLM call</text>
+</svg>

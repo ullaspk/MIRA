@@ -1,0 +1,60 @@
+ABCDE Ltd. - Customer Self-Service Portal Modernization
+Project description, version 1.2
+
+BACKGROUND
+ABCDE Ltd. is a mid-sized telecom services provider with about 1.4 million customers. Customers manage their accounts through a legacy web portal built in 2014 and through the call centre. Billing and plan-change calls to the call centre are high, and the legacy portal does not work well on mobile devices.
+
+OBJECTIVE
+Replace the legacy portal with a modern, mobile-friendly Customer Self-Service Portal. Target: reduce billing-related call-centre contacts by 25% within 6 months of go-live.
+
+SCOPE (IN)
+- Single sign-on (SSO) login
+- Account profile management
+- Billing history and invoice download
+- Online bill payment through a third-party payment gateway
+- Refunds for failed payments
+- SMS and email notifications
+- Migration of existing customer account data
+
+SCOPE (OUT)
+- Redesign of the ABCDE mobile app
+- Changes to the billing engine
+- New product catalogue features
+
+TIMELINE
+The project starts on 1 September 2026 and closes on 26 February 2027 (end of hypercare).
+Planned phases: Discovery (September 2026), Design (October 2026), Build (November to mid-December 2026), Test (mid-December 2026 to January 2027), Launch (February 2027).
+Go-live is planned for 12 February 2027, ahead of ABCDE's spring marketing campaign.
+
+KEY MILESTONES
+- Project charter approved: 4 September 2026
+- Requirements signed off: 25 September 2026
+- UX design approved: 16 October 2026
+- Architecture and API contracts finalized: 23 October 2026
+- Core portal build complete (login, account, billing, notifications): 27 November 2026
+- Payment gateway integration complete: 11 December 2026
+- User acceptance testing (UAT) complete: 22 January 2027
+- Security and performance testing signed off: 29 January 2027
+- Go-live: 12 February 2027
+- Hypercare closure: 26 February 2027
+
+BUDGET
+USD 850,000 approved, which includes a 10% contingency.
+
+TEAM
+Project manager: Priya. Business analyst: Ravi. UX designer: Meera. Solution architect: Arjun. Backend developers: Kiran and Sana. QA lead: Neha. DevOps engineer: Dev.
+
+DEPENDENCIES
+- The payment gateway vendor must provide sandbox access by 6 November 2026.
+- The SMS provider contract must be signed before the notification service can be completed.
+- The billing engine team provides API access based on the API contracts finalized on 23 October 2026.
+- The security team must be available for penetration testing in January 2027.
+
+ASSUMPTIONS
+- Existing customer data is clean enough to migrate with limited manual correction.
+- Business stakeholders are available for UAT for three weeks in January 2027.
+- No regulatory changes affect the project during delivery.
+
+CONSTRAINTS
+- PCI-DSS compliance is required for all payment flows.
+- Go-live cannot move beyond the end of February 2027 because of the marketing campaign contract.

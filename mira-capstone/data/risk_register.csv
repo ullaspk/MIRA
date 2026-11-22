@@ -1,0 +1,7 @@
+risk_id,risk,category,likelihood,impact,owner,mitigation,status
+R01,Payment gateway vendor delays sandbox access,External dependency,High,High,Priya,Escalate to vendor account manager; agree a fixed delivery date,Open
+R02,Legacy customer data quality is worse than assumed,Data,Medium,High,Arjun,Run a data profiling pass before migration build starts,Open
+R03,Business stakeholders unavailable for UAT in January,Resource,Medium,Medium,Neha,Book UAT slots with business owners in advance,Open
+R04,Penetration test slot not confirmed with security team,Schedule,Medium,High,Arjun,Request a firm January slot from the security team,Open
+R05,Scope creep from stakeholder change requests,Scope,Medium,Medium,Ravi,Apply a change-control board after requirements sign-off,Mitigating
+R06,PCI-DSS compliance gaps found late,Compliance,Low,High,Arjun,Complete the PCI-DSS checklist before UAT,Open

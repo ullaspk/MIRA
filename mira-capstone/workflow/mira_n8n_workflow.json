@@ -1,0 +1,1161 @@
+{
+  "name": "Mira - Project Management Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi, I am Mira. I can create a project plan, assess risks, write a status report or check milestone health for the ABCDE Ltd. project. What do you need?",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "3d39eca4-12a3-47e1-a786-7e741d8cbe32",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "c45e3c7c-b84c-4e97-8bbe-63fb7762a263"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aa49e023-2b36-45c9-91fd-81bc5412cee1",
+              "name": "baseUrl",
+              "value": "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/mira-capstone/main",
+              "type": "string"
+            },
+            {
+              "id": "e61a0ec0-d4da-4174-b7bd-6dc45955fe92",
+              "name": "asOfDate",
+              "value": "2026-11-16",
+              "type": "string"
+            },
+            {
+              "id": "98bb22d0-d62f-4349-8988-10d00bf1438b",
+              "name": "langfuseHost",
+              "value": "https://cloud.langfuse.com",
+              "type": "string"
+            },
+            {
+              "id": "67ba9b14-22e3-46f8-bd61-e247c875d6b6",
+              "name": "startedAt",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "80b9e59a-1cf9-42a1-aed2-5333891f1c63",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "1ba74322-2e8f-4a2d-8c9e-20901325caab",
+      "name": "OpenAI Model - Classifier",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Config').first().json.chatInput }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "ROLE: You are the intent classifier for Mira, a project management assistant. You only classify. You never answer the question.\n\nINPUT: One message from a project manager.\n\nOUTPUT: Reply with EXACTLY ONE word from this list and nothing else:\nPLAN - the user wants a project plan, phases, work breakdown or a list of milestones to be created.\nRISK - the user wants risks identified, a risk matrix, a risk assessment or mitigation ideas.\nSTATUS - the user wants a status report, progress update, task counts, blockers or overdue tasks.\nMILESTONE - the user wants to know whether milestones or the go-live date are on track, at risk or late.\nUNCLEAR - the message is too vague, off topic, a greeting, or you cannot tell which of the four applies.\n\nRULES:\n1) Output one word only. No punctuation, no explanation.\n2) If the message could fit two or more categories equally well, output UNCLEAR.\n3) If the message is too vague to decide (for example \"help me with my project\"), output UNCLEAR.\n4) Do NOT guess. When in doubt, output UNCLEAR."
+            }
+          ]
+        }
+      },
+      "id": "fcad9719-7aa7-43db-8670-2eabb3d76df3",
+      "name": "Intent Classifier",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turns the classifier's one-word answer into a safe intent value.\nconst raw = String($input.first().json.text || '').trim();\nconst m = raw.toUpperCase().match(/\\b(PLAN|RISK|STATUS|MILESTONE|UNCLEAR)\\b/);\nconst intent = m ? m[1] : 'UNCLEAR';   // anything unexpected falls back to UNCLEAR\nconst userRequest = $('Config').first().json.chatInput;\nreturn [{ json: { intent, userRequest, classifierRaw: raw } }];"
+      },
+      "id": "e1d1ee98-a522-48d4-b9f6-e83a10e1ae7f",
+      "name": "Parse Intent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "d2c4581c-0556-4359-9fce-d1bbb46db256",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "PLAN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PLAN"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "a938b280-def2-4be6-9a99-fbac14b015dd",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "RISK",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RISK"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "feb213a0-c3c9-4d45-94af-aec682b8e742",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "STATUS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STATUS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "08c140cd-6c06-4d41-9f09-a6729d2669e2",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "MILESTONE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MILESTONE"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "UNCLEAR"
+        }
+      },
+      "id": "d1a95101-3fb3-4801-a680-092921a9cfcf",
+      "name": "Route Request",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/ABCDE_Ltd_project_description.txt' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "6f358146-3014-4a87-bd0e-05c0a3d9e68b",
+      "name": "Fetch Project Description (Plan)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        -80
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "jsCode": "const req = $('Parse Intent').first().json;\nconst description = $('Fetch Project Description (Plan)').first().json.data;\nconst context = 'SOURCE: project description file (ABCDE_Ltd_project_description.txt)\\n---\\n' + description;\nreturn [{ json: { intent: 'PLAN', userRequest: req.userRequest, context } }];"
+      },
+      "id": "6e574415-a949-4ab0-af0b-221c38d6f264",
+      "name": "Prepare Plan Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "1f06916a-ce01-4028-800e-caf0fb73e598",
+      "name": "OpenAI Model - Plan",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1640,
+        120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER REQUEST:\n{{ $json.userRequest }}\n\nPROJECT DATA:\n{{ $json.context }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "ROLE: You are a senior project planner. You turn a project description into a structured project plan.\n\nINPUT: The user's request and the project description file. The description is the ONLY source of truth.\n\nOUTPUT: Write the plan in Markdown using EXACTLY these sections:\n1. Project Summary - 2 to 3 sentences: what is being delivered, for whom, and the target outcome.\n2. Objectives and Success Criteria - bullet list.\n3. Scope - In scope and Out of scope.\n4. Phases and Milestones - a table with columns: Phase | Milestone | Target date | Source in description. Every row must be traceable to the description. In the Source column, write the section name of the description (for example KEY MILESTONES or TIMELINE).\n5. Team and Roles - table: Person | Role. Use only the people named in the description.\n6. Dependencies - bullet list from the description.\n7. Assumptions and Constraints - bullet list from the description.\n8. Open Questions - things the description does not state but a plan would need (for example, effort estimates, task-level breakdown, or a budget split).\n\nRULES:\n1) Use ONLY information stated in the project description. Do NOT invent milestones, dates, people, budgets, tasks or dependencies.\n2) If a detail needed for a section is missing, write: NOT SPECIFIED IN DESCRIPTION. Do not fill the gap.\n3) Do not add phases or milestones that are not in the description. You may group existing milestones under the described phases.\n4) If the user asks for something the description cannot support (a different project, a budget breakdown, task estimates), say so in one sentence and list what is missing. Do not make it up.\n5) Keep the plan concise. Use short sentences and plain words."
+            }
+          ]
+        }
+      },
+      "id": "d5609d75-407a-49af-9162-f71783bede71",
+      "name": "Plan Generator",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1640,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/ABCDE_Ltd_project_description.txt' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "6459eba4-52a6-4915-b5de-6ea44a4795b3",
+      "name": "Fetch Project Description (Risk)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/risk_register.csv' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "5186bfac-f210-4389-ba8f-bdce41a2d970",
+      "name": "Fetch Risk Register",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/task_board.csv' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "37c8038e-40d3-42d6-8d5d-6819f24e78ef",
+      "name": "Fetch Task Board (Risk)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1640,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseCsv(text) {\n  const rows = [];\n  let row = [], cur = '', q = false;\n  text = String(text || '').replace(/^\\uFEFF/, '');\n  for (let i = 0; i < text.length; i++) {\n    const c = text[i];\n    if (q) {\n      if (c === '\"') { if (text[i + 1] === '\"') { cur += '\"'; i++; } else { q = false; } }\n      else { cur += c; }\n    } else if (c === '\"') { q = true; }\n    else if (c === ',') { row.push(cur); cur = ''; }\n    else if (c === '\\n' || c === '\\r') {\n      if (c === '\\r' && text[i + 1] === '\\n') i++;\n      row.push(cur); cur = '';\n      if (row.some(x => x.trim() !== '')) rows.push(row);\n      row = [];\n    } else { cur += c; }\n  }\n  if (cur !== '' || row.length) { row.push(cur); if (row.some(x => x.trim() !== '')) rows.push(row); }\n  const head = rows.shift().map(h => h.trim());\n  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));\n}\nconst req = $('Parse Intent').first().json;\nconst cfg = $('Config').first().json;\nconst asOf = new Date(cfg.asOfDate + 'T00:00:00Z');\nconst description = $('Fetch Project Description (Risk)').first().json.data;\nconst register = parseCsv($('Fetch Risk Register').first().json.data);\nconst tasks = parseCsv($('Fetch Task Board (Risk)').first().json.data);\nconst level = { High: 3, Medium: 2, Low: 1 };\nconst band = s => (s >= 6 ? 'High' : s >= 3 ? 'Medium' : 'Low');\nconst day = 86400000;\nconst daysTo = d => Math.round((new Date(d + 'T00:00:00Z') - asOf) / day);\n\nconst regLines = register.map(r => {\n  const s = (level[r.likelihood] || 0) * (level[r.impact] || 0);\n  return `${r.risk_id} | ${r.risk} | ${r.category} | L=${r.likelihood} | I=${r.impact} | score=${s || 'UNKNOWN'} (${s ? band(s) : 'UNKNOWN'}) | owner=${r.owner} | status=${r.status} | mitigation=${r.mitigation}`;\n});\nconst blocked = tasks.filter(t => t.status === 'Blocked')\n  .map(t => `${t.task_id} | ${t.task} | milestone ${t.milestone_id} | owner=${t.owner || 'UNASSIGNED'} | due ${t.due_date} | reason: ${t.notes || 'not stated'}`);\nconst overdue = tasks.filter(t => t.status !== 'Done' && daysTo(t.due_date) < 0)\n  .map(t => `${t.task_id} | ${t.task} | milestone ${t.milestone_id} | ${t.status} | due ${t.due_date} | ${-daysTo(t.due_date)} days overdue`);\nconst unassigned = tasks.filter(t => t.status !== 'Done' && !t.owner).map(t => `${t.task_id} | ${t.task} | milestone ${t.milestone_id}`);\nconst open = {};\ntasks.filter(t => t.status !== 'Done' && t.owner).forEach(t => { open[t.owner] = (open[t.owner] || 0) + 1; });\nconst load = Object.entries(open).sort((a, b) => b[1] - a[1]).map(([o, n]) => `${o}: ${n} open tasks`);\n\nconst context = [\n  `AS-OF DATE: ${cfg.asOfDate}`,\n  'RATING RULE: score = likelihood x impact with High=3, Medium=2, Low=1. Score 6-9 = High, 3-4 = Medium, 1-2 = Low.',\n  '',\n  'SOURCE A - PROJECT DESCRIPTION:\\n' + description,\n  '',\n  'SOURCE B - EXISTING RISK REGISTER (risk_id | risk | category | likelihood | impact | score | owner | status | mitigation):\\n' + regLines.join('\\n'),\n  '',\n  'SOURCE C - TASK BOARD EVIDENCE',\n  'Blocked tasks:\\n' + (blocked.join('\\n') || 'none'),\n  'Overdue open tasks:\\n' + (overdue.join('\\n') || 'none'),\n  'Open tasks without an owner:\\n' + (unassigned.join('\\n') || 'none'),\n  'Open task load per owner:\\n' + (load.join('\\n') || 'none'),\n  '',\n  'NOT AVAILABLE IN THE DATA: actual spend, cost forecasts, effort hours, vendor contract terms, defect counts.'\n].join('\\n');\nreturn [{ json: { intent: 'RISK', userRequest: req.userRequest, context } }];"
+      },
+      "id": "449a7c98-318e-43c4-a7bf-0949ed76ba61",
+      "name": "Prepare Risk Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "ae265961-96ee-47a2-b32f-57be2df0328f",
+      "name": "OpenAI Model - Risk",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2120,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER REQUEST:\n{{ $json.userRequest }}\n\nPROJECT DATA:\n{{ $json.context }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "ROLE: You are a project risk analyst. You build a risk assessment from the project data you are given.\n\nINPUT: The user's request and three sources: A) project description, B) existing risk register with scores already computed, C) task board evidence (blocked tasks, overdue tasks, unassigned tasks, task load per owner).\n\nOUTPUT: Write in Markdown using EXACTLY these sections:\n1. Risk Summary - 2 sentences with the number of High, Medium and Low risks you list.\n2. Risk Matrix - a table sorted by score, highest first, with columns: ID | Risk | Category | Likelihood | Impact | Score | Evidence | Mitigation | Owner.\n   - For risks from the register, keep the given ID, likelihood, impact, score, owner and mitigation exactly. Do not change them.\n   - For NEW risks you identify, use IDs N1, N2, N3. Rate likelihood and impact as High, Medium or Low using the evidence. Score = likelihood x impact (High=3, Medium=2, Low=1). 6-9 is High, 3-4 is Medium, 1-2 is Low.\n3. New Risks Not in the Register - one line each saying why the data supports it.\n4. Top 3 Actions This Week - the three most urgent mitigations, each tied to a risk ID.\n\nRULES:\n1) Every risk must have Evidence that names a concrete item from the data (a task ID, a dependency, a date, a register ID, or a quoted fact from the description). If you cannot name evidence, do NOT list the risk.\n2) Do NOT add generic risks (for example \"team burnout\" or \"poor communication\") unless the data explicitly supports them.\n3) Do NOT invent owners, dates, costs or numbers. If an owner is not in the data, write UNASSIGNED. If a mitigation is not given for a new risk, propose one and mark it SUGGESTED.\n4) If the request asks for information the data does not contain (for example actual spend or vendor contract terms), say it is NOT AVAILABLE IN THE DATA.\n5) Use short sentences and plain words."
+            }
+          ]
+        }
+      },
+      "id": "292bfc6b-5eb5-4568-89a6-f1759a78af65",
+      "name": "Risk Analyst",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/task_board.csv' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "9bf5c353-64df-4f58-8d72-381db4117679",
+      "name": "Fetch Task Board (Status)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        700
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseCsv(text) {\n  const rows = [];\n  let row = [], cur = '', q = false;\n  text = String(text || '').replace(/^\\uFEFF/, '');\n  for (let i = 0; i < text.length; i++) {\n    const c = text[i];\n    if (q) {\n      if (c === '\"') { if (text[i + 1] === '\"') { cur += '\"'; i++; } else { q = false; } }\n      else { cur += c; }\n    } else if (c === '\"') { q = true; }\n    else if (c === ',') { row.push(cur); cur = ''; }\n    else if (c === '\\n' || c === '\\r') {\n      if (c === '\\r' && text[i + 1] === '\\n') i++;\n      row.push(cur); cur = '';\n      if (row.some(x => x.trim() !== '')) rows.push(row);\n      row = [];\n    } else { cur += c; }\n  }\n  if (cur !== '' || row.length) { row.push(cur); if (row.some(x => x.trim() !== '')) rows.push(row); }\n  const head = rows.shift().map(h => h.trim());\n  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));\n}\nconst req = $('Parse Intent').first().json;\nconst cfg = $('Config').first().json;\nconst asOf = new Date(cfg.asOfDate + 'T00:00:00Z');\nconst tasks = parseCsv($('Fetch Task Board (Status)').first().json.data);\nconst day = 86400000;\nconst daysTo = d => Math.round((new Date(d + 'T00:00:00Z') - asOf) / day);\n\nconst total = tasks.length;\nconst counts = {};\ntasks.forEach(t => { counts[t.status] = (counts[t.status] || 0) + 1; });\nconst done = counts['Done'] || 0;\nconst pct = total ? Math.round((done / total) * 100) : 0;\nconst fmt = t => `${t.task_id} | ${t.task} | milestone ${t.milestone_id} | owner=${t.owner || 'UNASSIGNED'} | status=${t.status} | due ${t.due_date}`;\n\nconst blocked = tasks.filter(t => t.status === 'Blocked').map(t => fmt(t) + ` | reason: ${t.notes || 'not stated'}`);\nconst overdue = tasks.filter(t => t.status !== 'Done' && daysTo(t.due_date) < 0).map(t => fmt(t) + ` | ${-daysTo(t.due_date)} days overdue`);\nconst next7 = tasks.filter(t => t.status !== 'Done' && daysTo(t.due_date) >= 0 && daysTo(t.due_date) <= 7).map(t => fmt(t) + ` | due in ${daysTo(t.due_date)} days`);\nconst inProgress = tasks.filter(t => t.status === 'In Progress').map(fmt);\nconst unassigned = tasks.filter(t => t.status !== 'Done' && !t.owner).map(fmt);\nconst owners = {};\ntasks.forEach(t => {\n  const o = t.owner || 'UNASSIGNED';\n  owners[o] = owners[o] || { Done: 0, 'In Progress': 0, Blocked: 0, 'To Do': 0 };\n  owners[o][t.status] = (owners[o][t.status] || 0) + 1;\n});\nconst ownerLines = Object.entries(owners).map(([o, c]) => `${o}: Done ${c['Done']}, In Progress ${c['In Progress']}, Blocked ${c['Blocked']}, To Do ${c['To Do']}`);\n\nconst context = [\n  `AS-OF DATE: ${cfg.asOfDate}`,\n  'ALL NUMBERS BELOW WERE COMPUTED BY CODE FROM THE TASK BOARD. Copy them exactly. Do not recalculate.',\n  '',\n  `TOTAL TASKS: ${total}`,\n  `COUNTS BY STATUS: Done ${done}, In Progress ${counts['In Progress'] || 0}, Blocked ${counts['Blocked'] || 0}, To Do ${counts['To Do'] || 0}`,\n  `COMPLETION: ${done} of ${total} tasks Done (${pct}%)`,\n  `OVERDUE OPEN TASKS: ${overdue.length}`,\n  '',\n  'BLOCKED TASKS:\\n' + (blocked.join('\\n') || 'none'),\n  'OVERDUE OPEN TASKS:\\n' + (overdue.join('\\n') || 'none'),\n  'DUE IN THE NEXT 7 DAYS (not Done):\\n' + (next7.join('\\n') || 'none'),\n  'IN PROGRESS:\\n' + (inProgress.join('\\n') || 'none'),\n  'OPEN TASKS WITHOUT AN OWNER:\\n' + (unassigned.join('\\n') || 'none'),\n  'TASKS PER OWNER:\\n' + ownerLines.join('\\n'),\n  '',\n  'NOT AVAILABLE IN THE DATA: budget or spend, effort hours, actual start dates, story points, defect counts, any project other than ABCDE Ltd.'\n].join('\\n');\nreturn [{ json: { intent: 'STATUS', userRequest: req.userRequest, context } }];"
+      },
+      "id": "ef670c07-4f29-4959-9dcf-1f5540f0663a",
+      "name": "Prepare Status Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "334e05b6-502d-4d5d-9d74-ef6d077eec70",
+      "name": "OpenAI Model - Status",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1640,
+        900
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER REQUEST:\n{{ $json.userRequest }}\n\nPROJECT DATA:\n{{ $json.context }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "ROLE: You are a project status reporter. You write a weekly status report from task board facts that were already computed by code.\n\nINPUT: The user's request and a FACTS block. All counts, lists, dates and overdue days in the FACTS block are final and correct.\n\nOUTPUT: Write in Markdown using EXACTLY these sections, unless the user asks a narrower question (then answer only that question, using the same facts):\n1. Status at a Glance - one line with the as-of date, total tasks, and counts by status (Done, In Progress, Blocked, To Do), and the completion percentage.\n2. Overall Health - one word: GREEN, AMBER or RED, with one sentence of reasoning. Use RED if any open task is overdue and blocked, AMBER if there are blockers or overdue tasks but none is both, otherwise GREEN.\n3. Blockers - table: Task ID | Task | Owner | Reason | Days overdue (if any).\n4. Overdue Tasks - table: Task ID | Task | Owner | Status | Days overdue.\n5. Due in the Next 7 Days - bullet list.\n6. Needs Attention - tasks without an owner or owners with the most open work.\n7. Asks and Next Steps - 3 short bullets that follow directly from the blockers and overdue items.\n\nRULES:\n1) Copy every number exactly from the FACTS block. Do NOT recalculate, round or estimate.\n2) Do NOT invent tasks, owners, statuses, reasons or dates. If a field is missing, write UNKNOWN.\n3) If the user asks about something listed under NOT AVAILABLE IN THE DATA (budget, spend, effort, another project), answer: \"NOT AVAILABLE IN THE DATA\" and say what is available instead. Do not guess.\n4) Do not add sections about topics with no data. Write \"none\" for an empty list.\n5) Use short sentences and plain words."
+            }
+          ]
+        }
+      },
+      "id": "8c4e5d12-d9cd-48d8-8dca-30554ab88724",
+      "name": "Status Reporter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1640,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/timeline.csv' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "c6bd6cd0-d7ac-4c98-9bcb-95722bf72937",
+      "name": "Fetch Timeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        1100
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.baseUrl + '/data/task_board.csv' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "ae1f1b37-aa35-4138-b342-b035a9dfdb0f",
+      "name": "Fetch Task Board (Milestone)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        1100
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseCsv(text) {\n  const rows = [];\n  let row = [], cur = '', q = false;\n  text = String(text || '').replace(/^\\uFEFF/, '');\n  for (let i = 0; i < text.length; i++) {\n    const c = text[i];\n    if (q) {\n      if (c === '\"') { if (text[i + 1] === '\"') { cur += '\"'; i++; } else { q = false; } }\n      else { cur += c; }\n    } else if (c === '\"') { q = true; }\n    else if (c === ',') { row.push(cur); cur = ''; }\n    else if (c === '\\n' || c === '\\r') {\n      if (c === '\\r' && text[i + 1] === '\\n') i++;\n      row.push(cur); cur = '';\n      if (row.some(x => x.trim() !== '')) rows.push(row);\n      row = [];\n    } else { cur += c; }\n  }\n  if (cur !== '' || row.length) { row.push(cur); if (row.some(x => x.trim() !== '')) rows.push(row); }\n  const head = rows.shift().map(h => h.trim());\n  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));\n}\nconst req = $('Parse Intent').first().json;\nconst cfg = $('Config').first().json;\nconst asOf = new Date(cfg.asOfDate + 'T00:00:00Z');\nconst day = 86400000;\nconst daysTo = d => Math.round((new Date(d + 'T00:00:00Z') - asOf) / day);\nconst ms = parseCsv($('Fetch Timeline').first().json.data).sort((a, b) => a.due_date.localeCompare(b.due_date));\nconst tasks = parseCsv($('Fetch Task Board (Milestone)').first().json.data);\n\n// Step 1: own status of each milestone from its linked tasks\nconst info = {};\nms.forEach(m => {\n  const t = tasks.filter(x => x.milestone_id === m.milestone_id);\n  const done = t.filter(x => x.status === 'Done').length;\n  const blocked = t.filter(x => x.status === 'Blocked');\n  const overdue = t.filter(x => x.status !== 'Done' && daysTo(x.due_date) < 0);\n  const dtd = daysTo(m.due_date);\n  const pct = t.length ? Math.round((done / t.length) * 100) : null;\n  let rag, reasons = [];\n  if (!t.length) { rag = 'UNKNOWN'; reasons.push('no tasks linked to this milestone'); }\n  else if (done === t.length) { rag = 'COMPLETE'; }\n  else {\n    if (dtd < 0) reasons.push(`milestone date passed ${-dtd} days ago and it is not complete`);\n    if (overdue.length) reasons.push(`${overdue.length} overdue task(s): ${overdue.map(x => x.task_id).join(', ')}`);\n    if (blocked.length) reasons.push(`${blocked.length} blocked task(s): ${blocked.map(x => x.task_id + ' (' + (x.notes || 'reason not stated') + ')').join('; ')}`);\n    if (dtd < 0 || overdue.length || (blocked.length && dtd <= 30)) rag = 'RED';\n    else if (blocked.length || (dtd <= 30 && pct < 60)) rag = 'AMBER';\n    else rag = 'GREEN';\n    if (dtd <= 30 && pct < 60 && rag !== 'RED') reasons.push(`due in ${dtd} days with only ${pct}% of tasks done`);\n  }\n  info[m.milestone_id] = { m, t, done, pct, dtd, rag, reasons };\n});\n\n// Step 2: downstream impact - any milestone that depends (directly or indirectly) on a RED milestone\nconst deps = id => (info[id].m.depends_on || '').split(';').map(s => s.trim()).filter(Boolean).filter(x => info[x]);\nconst upstreamRed = (id, seen = new Set()) => {\n  let out = [];\n  deps(id).forEach(d => {\n    if (seen.has(d)) return; seen.add(d);\n    if (info[d].rag === 'RED') out.push(d);\n    out = out.concat(upstreamRed(d, seen));\n  });\n  return [...new Set(out)];\n};\nms.forEach(m => {\n  const i = info[m.milestone_id];\n  const up = upstreamRed(m.milestone_id);\n  if (up.length && i.rag !== 'COMPLETE') {\n    i.reasons.push('depends on RED milestone(s): ' + up.join(', '));\n    if (i.rag === 'GREEN' || i.rag === 'UNKNOWN') i.rag = 'AMBER';\n  }\n});\n\nconst lines = ms.map(m => {\n  const i = info[m.milestone_id];\n  return `${m.milestone_id} | ${m.milestone} | phase=${m.phase} | due ${m.due_date} (${i.dtd >= 0 ? 'in ' + i.dtd + ' days' : -i.dtd + ' days ago'}) | owner=${m.owner} | tasks done ${i.done}/${i.t.length}${i.pct === null ? '' : ' (' + i.pct + '%)'} | RAG=${i.rag}${i.reasons.length ? ' | reasons: ' + i.reasons.join(' ; ') : ''}`;\n});\nconst counts = {};\nms.forEach(m => { const r = info[m.milestone_id].rag; counts[r] = (counts[r] || 0) + 1; });\n\nconst context = [\n  `AS-OF DATE: ${cfg.asOfDate}`,\n  'RAG RULES (applied by code, do not change them):',\n  '- COMPLETE: every linked task is Done.',\n  '- RED: milestone date passed and not complete, OR any linked task overdue, OR a blocked task and the milestone is due within 30 days.',\n  '- AMBER: a blocked task, OR due within 30 days with under 60% of tasks done, OR depends on a RED milestone.',\n  '- GREEN: none of the above. UNKNOWN: no tasks linked.',\n  '',\n  `SUMMARY: ${Object.entries(counts).map(([k, v]) => k + ' ' + v).join(', ')}`,\n  'MILESTONES (id | name | phase | due | owner | task progress | RAG | reasons):',\n  lines.join('\\n'),\n  '',\n  'NOT AVAILABLE IN THE DATA: budget impact, effort estimates, vendor commitments, any milestone not listed above.'\n].join('\\n');\nreturn [{ json: { intent: 'MILESTONE', userRequest: req.userRequest, context } }];"
+      },
+      "id": "d3a94e93-eebf-4616-acd8-df3badfe0145",
+      "name": "Prepare Milestone Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "3768981c-012b-4c5a-82c9-4b7afe193894",
+      "name": "OpenAI Model - Milestone",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1880,
+        1300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER REQUEST:\n{{ $json.userRequest }}\n\nPROJECT DATA:\n{{ $json.context }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "ROLE: You are a milestone tracking analyst. You explain milestone health using RAG results that were already computed by code.\n\nINPUT: The user's request and a MILESTONES block. Each milestone has task progress, due date, RAG status (COMPLETE, GREEN, AMBER, RED, UNKNOWN) and reasons. The RAG values are final.\n\nOUTPUT: Write in Markdown using EXACTLY these sections, unless the user asks about one milestone (then answer only about that one, using the same format):\n1. Milestone Health Summary - one sentence with the count of COMPLETE, GREEN, AMBER and RED milestones.\n2. At-Risk Milestones - table: ID | Milestone | Due date | RAG | Task progress | Why. Include every RED and AMBER milestone. Copy the reasons from the data.\n3. Go-Live Outlook - 2 to 3 sentences on milestone M9 or the milestone named Go-live: its RAG and which upstream milestones drive it.\n4. Recommended Actions - up to 4 bullets. Each action must refer to a task ID or milestone ID from the data.\n\nRULES:\n1) Do NOT change any RAG value or recompute progress. Copy from the data.\n2) Do NOT invent dates, owners, tasks or reasons. If the data gives no reason, write UNKNOWN.\n3) Do NOT predict new dates or say a date \"will slip by X days\". You may say a milestone is at risk and why.\n4) If the user names a milestone that is not in the data, say it is NOT IN THE PROJECT DATA and list the milestones that are. Do not create one.\n5) If the user asks about something under NOT AVAILABLE IN THE DATA, say so plainly.\n6) Use short sentences and plain words."
+            }
+          ]
+        }
+      },
+      "id": "bd9bda10-3d25-4565-af49-ca37226ea6be",
+      "name": "Milestone Analyst",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1880,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "799a6c5f-dea1-4455-8651-2490bd9e709f",
+              "name": "output",
+              "value": "I can help with four things for the ABCDE Ltd. project:\n\n1. **Project plan** - phases, milestones, team, dependencies\n2. **Risk assessment** - risk matrix with evidence and mitigations\n3. **Status report** - task counts, blockers, overdue work\n4. **Milestone check** - which milestones or the go-live date are at risk\n\nI could not tell which one you need, and I do not want to guess. Which would you like?",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "98cd05e0-f0a8-470b-bde1-bdb6d1596de2",
+      "name": "Clarify Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1160,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0600c6fc-5871-4f6e-bf53-c3c01a0a9ae5",
+              "name": "output",
+              "value": "={{ $json.text ?? $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "c4fac5b2-89de-444d-b255-686a9dd88a22",
+      "name": "Final Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2500,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds a Langfuse ingestion payload (trace + one generation per LLM call).\nconst cfg = $('Config').first().json;\nconst pi = $('Parse Intent').first().json;\nconst output = $('Final Response').first().json.output;\nconst agents = {\n  'Prepare Plan Context': ['plan-generator', 'gpt-4.1-mini'],\n  'Prepare Risk Context': ['risk-analyst', 'gpt-4.1-mini'],\n  'Prepare Status Context': ['status-reporter', 'gpt-4o-mini'],\n  'Prepare Milestone Context': ['milestone-analyst', 'gpt-4o-mini']\n};\nlet ctx = null, agent = null, model = null;\nfor (const [node, [a, m]] of Object.entries(agents)) {\n  try { const it = $(node).first(); if (it && it.json && it.json.context) { ctx = it.json; agent = a; model = m; break; } } catch (e) { /* branch not executed */ }\n}\nconst uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });\nconst now = new Date().toISOString();\nconst start = cfg.startedAt || now;\nconst traceId = uuid();\nconst batch = [\n  { id: uuid(), type: 'trace-create', timestamp: now, body: { id: traceId, name: 'mira-request', timestamp: start, sessionId: cfg.sessionId, input: pi.userRequest, output, tags: ['mira', 'capstone', pi.intent], metadata: { intent: pi.intent, routedTo: agent || 'clarification-no-llm' } } },\n  { id: uuid(), type: 'generation-create', timestamp: now, body: { id: uuid(), traceId, name: 'intent-classifier', model: 'gpt-4o-mini', input: pi.userRequest, output: pi.classifierRaw, startTime: start, endTime: now } }\n];\nif (ctx) {\n  batch.push({ id: uuid(), type: 'generation-create', timestamp: now, body: { id: uuid(), traceId, name: agent, model, input: 'USER REQUEST: ' + ctx.userRequest + '\\n\\n' + ctx.context, output, startTime: start, endTime: now } });\n}\nreturn [{ json: { payload: { batch } } }];"
+      },
+      "id": "d73a8887-93be-4506-a741-803f1871f45a",
+      "name": "Build Trace",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2740,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.langfuseHost + '/api/public/ingestion' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "id": "0f6c192c-c25e-4557-89aa-9144c2f24cfa",
+      "name": "Log to Langfuse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2980,
+        600
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "REPLACE_WITH_LANGFUSE_CREDENTIAL_ID",
+          "name": "Langfuse API Keys"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "01247970-772e-49d3-a670-2fd14c18becc",
+              "name": "output",
+              "value": "={{ $('Final Response').first().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "c46ae8fd-b0e1-4b72-9a8e-eeabe63e9987",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3220,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mira - Router workflow\n**Pattern:** Router / Dispatcher\n1. Chat Trigger receives the request\n2. Config holds repo URL and as-of date\n3. Intent Classifier returns one word\n4. Switch routes to a specialist lane\n5. Final Response -> Langfuse trace -> reply\n\n**Setup:** see docs/Setup_Guide.md",
+        "height": 230,
+        "width": 420,
+        "color": 4
+      },
+      "id": "b5969605-a81e-4a79-b105-f7d4127a6284",
+      "name": "Note 30",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Before you run\n1. Config > baseUrl = your public GitHub raw URL\n2. Select your OpenAI credential on all 5 model nodes\n3. (Optional) add Langfuse Basic Auth credential, or disable the two Langfuse nodes",
+        "height": 190,
+        "width": 420,
+        "color": 3
+      },
+      "id": "608ff8b5-13bf-463b-b534-341eedb2130f",
+      "name": "Note 31",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Deterministic code = guardrail\nTask counts, overdue days and milestone RAG are computed in Code nodes. The LLM only writes the narrative, so it cannot miscount.",
+        "height": 150,
+        "width": 560,
+        "color": 6
+      },
+      "id": "fe24dc21-3bfc-43b5-b159-64983d5fa8e4",
+      "name": "Note 32",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        -300
+      ]
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model - Classifier": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "Parse Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Intent": {
+      "main": [
+        [
+          {
+            "node": "Route Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Project Description (Plan)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Project Description (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Task Board (Status)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Timeline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clarify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Project Description (Plan)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Plan Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Plan Context": {
+      "main": [
+        [
+          {
+            "node": "Plan Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model - Plan": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Plan Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Project Description (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Risk Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Risk Register": {
+      "main": [
+        [
+          {
+            "node": "Fetch Task Board (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Task Board (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Risk Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Risk Context": {
+      "main": [
+        [
+          {
+            "node": "Risk Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model - Risk": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Risk Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Task Board (Status)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Status Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Status Context": {
+      "main": [
+        [
+          {
+            "node": "Status Reporter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model - Status": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Status Reporter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Timeline": {
+      "main": [
+        [
+          {
+            "node": "Fetch Task Board (Milestone)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Task Board (Milestone)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Milestone Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Milestone Context": {
+      "main": [
+        [
+          {
+            "node": "Milestone Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model - Milestone": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Milestone Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Generator": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Analyst": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Reporter": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Milestone Analyst": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clarify Request": {
+      "main": [
+        [
+          {
+            "node": "Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Response": {
+      "main": [
+        [
+          {
+            "node": "Build Trace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Trace": {
+      "main": [
+        [
+          {
+            "node": "Log to Langfuse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Langfuse": {
+      "main": [
+        [
+          {
+            "node": "Return Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": [],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

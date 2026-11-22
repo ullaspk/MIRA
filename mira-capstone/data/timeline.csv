@@ -1,0 +1,11 @@
+milestone_id,milestone,phase,start_date,due_date,owner,depends_on
+M1,Project charter approved,Discovery,2026-09-01,2026-09-04,Priya,
+M2,Requirements signed off,Discovery,2026-09-07,2026-09-25,Ravi,M1
+M3,UX design approved,Design,2026-09-28,2026-10-16,Meera,M2
+M4,Architecture and API contracts finalized,Design,2026-10-05,2026-10-23,Arjun,M2
+M5,Core portal build complete,Build,2026-10-26,2026-11-27,Kiran,M3;M4
+M6,Payment gateway integration complete,Build,2026-11-02,2026-12-11,Kiran,M4
+M7,UAT complete,Test,2026-12-14,2027-01-22,Neha,M5;M6
+M8,Security and performance testing signed off,Test,2027-01-11,2027-01-29,Arjun,M5;M6
+M9,Go-live,Launch,2027-02-01,2027-02-12,Priya,M7;M8
+M10,Hypercare closure,Launch,2027-02-15,2027-02-26,Dev,M9
